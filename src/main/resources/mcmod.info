@@ -1,0 +1,16 @@
+[
+{
+  "modid": "monsterswarm",
+  "name": "Monster Swarm",
+  "description": "Aggressive AI for Minecraft monsters",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://dev.keray.eu/swarm/",
+  "updateUrl": "",
+  "authorList": ["Keray", "monk"],
+  "credits": "https://mc.keray.eu/",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
