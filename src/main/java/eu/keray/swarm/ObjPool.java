@@ -1,4 +1,4 @@
-package swarm.util;
+package eu.keray.swarm;
 
 import java.lang.reflect.Array;
 

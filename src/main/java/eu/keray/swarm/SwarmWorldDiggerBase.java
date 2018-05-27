@@ -1,10 +1,11 @@
-package swarm;
+package eu.keray.swarm;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import eu.keray.swarm.ValueMap.ReduceObserver;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStoneBrick;
 import net.minecraft.block.material.Material;
@@ -17,30 +18,20 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import swarm.api.SwarmControl;
-import swarm.util.ObjPool;
-import swarm.util.ValueMap;
-import swarm.util.ValueMap.ReduceObserver;
-import swarm.util.Vec3I;
 
-public abstract class SwarmDigging {
+public class SwarmWorldDiggerBase {
+	static final Block web = Blocks.WEB;
+
+	protected final SwarmWorld sw;
+	public SwarmWorldDiggerBase(SwarmWorld sw) {
+		this.sw = sw;
+	}
 	
-	protected Block bridge = Blocks.MOSSY_COBBLESTONE;
+	protected Block bridge = Blocks.GRAVEL;
 	
 	protected final ObjPool<Vec3I> vecpool = new ObjPool<Vec3I>(Vec3I.class);
-	
-	protected final SwarmWorld sw;
-	
 	private final ValueMap<Vec3I> damaged = new ValueMap<Vec3I>(2048);
-	private final ValueMap<Vec3I> bridges = new ValueMap<Vec3I>(2048);
-	
-	public SwarmDigging(SwarmWorld sw) {
-		this.sw = sw;
-		if(sw.world.provider.doesWaterVaporize())
-			bridge = Blocks.NETHERRACK;
-//		Block flesh = Block.getBlockFromName("BiomesOPlenty:flesh");
-//		if(flesh != null)
-//			bridge = flesh;
-	}
+	//private final ValueMap<Vec3I> bridges = new ValueMap<Vec3I>(2048);
 	
 
 	/** returns true if block was destroyed or there was no block at all */
@@ -137,14 +128,14 @@ public abstract class SwarmDigging {
 		return false;
 	}
 	
-	private void cleanup() {
-		if(bridges != null) {
-			for(Vec3I key : bridges.keys()) {
-				observer.removed(key);
-			}
-			bridges.clear();
-		}
-    }
+//	private void cleanup() {
+//		if(bridges != null) {
+//			for(Vec3I key : bridges.keys()) {
+//				observer.removed(key);
+//			}
+//			bridges.clear();
+//		}
+//    }
 	
 	private static final float minimum = 1.3f / 5;
 
@@ -164,7 +155,7 @@ public abstract class SwarmDigging {
     }
 
 
-	public boolean bridge(int x, int y, int z, int time) {
+	public boolean bridge(int x, int y, int z) {
 		if(!Config.ENABLE_BUILDING)
 			return false;
 		
@@ -176,8 +167,8 @@ public abstract class SwarmDigging {
 		if(chk == null || !chk.isLoaded())
 			return false;
 
-		if(bridges.size() >= 2048)
-			return false;
+//		if(bridges.size() >= 2048)
+//			return false;
 
 		if(!SwarmControl.instance.canSwarmPlaceBlock(sw.world, x, y, z))
 			return false;
@@ -187,8 +178,8 @@ public abstract class SwarmDigging {
 			type.dropBlockAsItemWithChance(sw.world, pos, state, 1f, 0);
 		
 		sw.world.setBlockState(pos, bridge.getDefaultState(), 2);
-		if(!sw.world.provider.doesWaterVaporize())
-			bridges.put(new Vec3I(x, y, z), time);
+//		if(!sw.world.provider.doesWaterVaporize())
+//			bridges.put(new Vec3I(x, y, z), time);
 		
 		return true;
 	}
@@ -214,11 +205,11 @@ public abstract class SwarmDigging {
 		return damaged;
     }
 
-	public abstract void process(EntityCreature entity, Vec3I to);
+	//public abstract void process(EntityCreature entity, Vec3I to);
 	
 	public void update() {
     	damaged.reduce(null);
-    	bridges.reduce(observer);
+//    	bridges.reduce(observer);
 
 		Iterator<Entry<EntityCreature, Mob>> iter = mobs.entrySet().iterator();
 		while(iter.hasNext()) {
@@ -230,24 +221,58 @@ public abstract class SwarmDigging {
 		}
 	}
 	
-	private ReduceObserver<Vec3I> observer = new ReduceObserver<Vec3I>() {
-        public void removed(Vec3I loc) {
-	        if(loc.getBlock(sw.world) == bridge)
-	        	loc.setBlock(sw.world, Blocks.AIR);
-        }
-	};
+//	private ReduceObserver<Vec3I> observer = new ReduceObserver<Vec3I>() {
+//        public void removed(Vec3I loc) {
+//	        if(loc.getBlock(sw.world) == bridge)
+//	        	loc.setBlock(sw.world, Blocks.AIR);
+//        }
+//	};
 
 
-	public boolean blockHarvested(BlockPos pos) {
-		Vec3I vec = new Vec3I(pos);
-	    return bridges.remove(vec, -1) != -1;
-    }
+//	public boolean blockHarvested(BlockPos pos) {
+//		Vec3I vec = new Vec3I(pos);
+//	    return bridges.remove(vec, -1) != -1;
+//    }
+//	
+//	/* returns true if block should not drop, removes it from list */
+//	public boolean blockHarvested(int x, int y, int z) {
+//		Vec3I vec = new Vec3I(x, y, z);
+//	    return bridges.remove(vec, -1) != -1;
+//    }
 	
-	/* returns true if block should not drop, removes it from list */
-	public boolean blockHarvested(int x, int y, int z) {
-		Vec3I vec = new Vec3I(x, y, z);
-	    return bridges.remove(vec, -1) != -1;
-    }
+	/** @returns true if passable block and if lava, will remove it first */
+	public final boolean isFreePass(int x, int y, int z) {
+		BlockPos pos = new BlockPos(x, y, z);
+		IBlockState t = sw.world.getBlockState(pos);
+		
+		if(t.getMaterial().isLiquid()) {
+//			sw.world.setBlockToAir(pos);
+//			return true;
+		}
+		//if(isLava(b)) {
+		//	world.getBlockAt(x, y, z).setType(Material.AIR);
+		//	cr.addPotionEffect(potion);
+		//	return true;
+		//}
+		return !t.getMaterial().blocksMovement() && t.getMaterial() != Material.WATER;
+	}
+	
+	public final boolean tryAttack(int x, int y, int z) {
+		IBlockState state = sw.world.getBlockState(new BlockPos(x, y, z));
+		Block type = state.getBlock();
+		
+		if(type == null || type == Blocks.AIR) {
+			return false;
+		}
+		
+		if(state.getMaterial().blocksMovement() || type == web) {
+			//MobUtil.playAnimation(cr, 0);
+			return !damage(x, y, z, 3);
+		}
+		
+		//damage(x, y, z, damage);
+		return false;
+	}
 	
 	Map<EntityCreature, Mob> mobs = new HashMap<EntityCreature, Mob>();
 	
@@ -287,4 +312,5 @@ public abstract class SwarmDigging {
 		}
 		
 	}
+
 }

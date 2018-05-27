@@ -1,4 +1,4 @@
-package swarm;
+package eu.keray.swarm;
 
 import java.io.File;
 
@@ -12,12 +12,12 @@ public class Config {
 //	public static double  ROCKET_FREQUENCY = 0.05f;
 	public static boolean KILL_MOBS_DAYTIME = true;
 	public static boolean ATTACK_ANIMALS = true;
-	public static boolean ENABLE_SPRINTING = true;
+	public static boolean ENABLE_SPRINTING = false;
 	public static boolean UNDERGROUND = true;
 	public static int AGGRO_RANGE = 120;
 	public static int MAX_RESISTANCE = 90;
 	public static float MAX_RES = MAX_RESISTANCE/5;
-	public static float RESISTANCE_MULTIPLIER;
+	public static float RESISTANCE_MULTIPLIER = 0.8f;
 
 	static Configuration config;
 	public static boolean DEBUG = false;
@@ -25,9 +25,9 @@ public class Config {
 	public static void preInit(File conf) {
 		config = new Configuration(conf);
 
-		reload();
+		//reload();
 
-		config.save();
+		//config.save();
 	}
 
 
@@ -69,7 +69,7 @@ public class Config {
 			ENABLE_BUILDING = prop.getBoolean();
 		}
 		{
-			Property prop = config.get(Configuration.CATEGORY_GENERAL, "Enable Sprinting", true);
+			Property prop = config.get(Configuration.CATEGORY_GENERAL, "Enable Sprinting", false);
 			prop.setComment("If set to True, monsters will sprint if their target sprints");
 			ENABLE_SPRINTING = prop.getBoolean();
 		}

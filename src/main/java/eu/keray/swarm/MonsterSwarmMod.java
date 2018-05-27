@@ -1,75 +1,56 @@
-package swarm;
-
-
-import static swarm.Log.println;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package eu.keray.swarm;
 
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.common.ForgeChunkManager.LoadingCallback;
-import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import swarm.util.Magic;
-@Mod(modid = "monsterswarm", name = "Monster Swarm", version = "1.2.0", acceptableRemoteVersions = "1.2.*")
-public class MonsterSwarm {
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.logging.log4j.Logger;
+
+@Mod(modid = MonsterSwarmMod.MODID, name = MonsterSwarmMod.NAME, version = MonsterSwarmMod.VERSION)
+public class MonsterSwarmMod
+{
+    public static final String MODID = "monsterswarm";
+    public static final String NAME = "Monster Swarm";
+    public static final String VERSION = "2.0";
+
+    public static Logger logger;
+    
+    
+	@Instance(value = MonsterSwarmMod.MODID)
+	public static MonsterSwarmMod INSTANCE;
+	
+	
 
 	public static final List<Class> excludedAttackers = new ArrayList<Class>();
 	public static final List<Class> includedAttackers = new ArrayList<Class>();
 	public static final List<Class> includedTargets = new ArrayList<Class>();
 	public static final List<Class> includedDiggers = new ArrayList<Class>();
 
-	List<SwarmWorld> worlds = new ArrayList<SwarmWorld>();
-	public final Map<WorldServer, SwarmWorld> map = new HashMap<WorldServer, SwarmWorld>();
-
-	// The instance of your mod that Forge uses.
-	@Instance(value = "monsterswarm")
-	public static MonsterSwarm INSTANCE;
-
-	// Says where the client and server 'proxy' code is loaded.
-	@SidedProxy(clientSide = "swarm.client.ClientProxy", serverSide = "swarm.CommonProxy")
-	public static CommonProxy proxy;
-
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event)
+    {
+        logger = event.getModLog();
 		Config.preInit(event.getSuggestedConfigurationFile());
-		
-		EntityRegistry.registerModEntity(new ResourceLocation("SwarmRocket"), EntitySwarmRocket.class, "SwarmRocket", 1, this, 80, 1, true);
-		//EntityRegistry.registerModEntity(OfflineVillager.class, "OfflineVillager", 2, this, 80, 60, true);
+    }
 
-		ForgeChunkManager.setForcedChunkLoadingCallback(this, callback);
-	}
-
-	LoadingCallback callback = new LoadingCallback() {
-
-		@Override
-		public void ticketsLoaded(List<Ticket> tickets, World world) {
-			for(Ticket t : tickets) {
-				ForgeChunkManager.releaseTicket(t);
-			}
-		}
-	};
-
-	@EventHandler
-	public void load(FMLInitializationEvent event) {
-		proxy.registerRenderers();
-	}
+    @EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        // some example code
+        logger.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+    }
+    
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
@@ -151,6 +132,7 @@ public class MonsterSwarm {
 		//		}
 	}
 
+    
 	@EventHandler
 	public void serverLoad(FMLServerStartedEvent event)
 	{
@@ -158,16 +140,17 @@ public class MonsterSwarm {
 			if(ws == null)
 				continue;
 			SwarmWorld sw = new SwarmWorld(ws);
-			worlds.add(sw);
-			map.put(ws, sw);
-
-			println("Swarm for dimension " + ws.provider.getDimension());
+			
+//			worlds.add(sw);
+//			map.put(ws, sw);
+//
+//			println("Swarm for dimension " + ws.provider.getDimension());
 		}
 	}
-
+	
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
 	{
-		event.registerServerCommand(new SwarmCommand());
+		//event.registerServerCommand(new SwarmCommand());
 	}
 }

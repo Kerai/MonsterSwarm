@@ -1,4 +1,4 @@
-package swarm.util;
+package eu.keray.swarm;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
@@ -84,7 +84,7 @@ public class Vec3I {
     }
 
 	public double length() {
-	    return MathHelper.sqrt_double(x*x + y*y + z*z);
+	    return MathHelper.sqrt(x*x + y*y + z*z);
     }
 	
 	public Vec3I scale(double scalar) {

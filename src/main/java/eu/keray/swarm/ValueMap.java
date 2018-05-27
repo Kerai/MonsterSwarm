@@ -1,4 +1,4 @@
-package swarm.util;
+package eu.keray.swarm;
 
 import java.util.*;
 import java.util.Map.Entry;

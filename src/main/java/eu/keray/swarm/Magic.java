@@ -1,6 +1,4 @@
-package swarm.util;
-
-import static swarm.Log.*;
+package eu.keray.swarm;
 
 import java.util.List;
 
@@ -12,7 +10,7 @@ public class Magic {
 		try {
 	        return Class.forName(name);
         } catch (ClassNotFoundException e) {
-        	println("Class not found: " + name);
+        	MonsterSwarmMod.logger.debug("Class not found: " + name);
         }
 		return null;
 	}
@@ -29,9 +27,9 @@ public class Magic {
 		Block type = Block.getBlockFromName(block);
 		if(type != null) {
 			type.setResistance(resist);
-			println("Resistance of '" + block + "' set to " + resist);
+			MonsterSwarmMod.logger.debug("Resistance of '" + block + "' set to " + resist);
 		} else {
-			println("Block '" + block + "' not found.");
+			MonsterSwarmMod.logger.debug("Block '" + block + "' not found.");
 		}
 	}
 
